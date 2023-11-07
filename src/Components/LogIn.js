@@ -12,12 +12,14 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { Paper } from "@mui/material";
-import { useState } from "react";
+// import { authActions } from "../store/auth-slice";
+// import { useDispatch } from "react-redux";
 
 const defaultTheme = createTheme();
 
-export default function SignUp() {
+export default function LogIn() {
   const navigate = useNavigate();
+  // const dispatch = useDispatch();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,16 +28,12 @@ export default function SignUp() {
 
     const enteredEmail = data.get("email");
     const enteredPass = data.get("password");
-    const enteredConPass = data.get("confirmpassword");
 
-    //authenticating with firebase signup Api priject-Mail-box
+    //authenticating with firebase signin Api priject-Mail-box
 
-    if (enteredPass !== enteredConPass) {
-      alert("Password do not match");
-    }
     try {
       const res = await fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyC8FT_EDeGXwBC-OPA1Rv4wst06zOTzkWw",
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyC8FT_EDeGXwBC-OPA1Rv4wst06zOTzkWw",
         {
           method: "POST",
           body: JSON.stringify({
@@ -50,11 +48,16 @@ export default function SignUp() {
       );
       if (res.ok) {
         const data = await res.json();
-        console.log("Signed up Successfully");
+        console.log("Logged in Successfully", data);
+        // dispatch(authActions.logIn());
         event.target.reset();
+        localStorage.setItem("localId", data.localId);
+        localStorage.setItem("idToken", data.idToken);
+        localStorage.setItem("email", data.email);
+        navigate("/home", { replace: true });
       }
     } catch (error) {
-      alert(error);
+      alert(error.message);
     }
   };
 
@@ -79,7 +82,7 @@ export default function SignUp() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign up
+              Log In
             </Typography>
             <Box
               component="form"
@@ -106,15 +109,6 @@ export default function SignUp() {
                 type="password"
                 id="password"
               />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="confirmpassword"
-                label=" Confirm Password"
-                type="password"
-                id="confirmpassword"
-              />
 
               <Button
                 type="submit"
@@ -122,13 +116,16 @@ export default function SignUp() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                SignUp
+                LogIn
               </Button>
 
               <Grid container>
+                <Grid item xs>
+                  <Link href="#" variant="body2"></Link>
+                </Grid>
                 <Grid item>
-                  <Link href="/login" variant="body2">
-                    {"Already have an account? Sign In"}
+                  <Link href="/" variant="body2">
+                    {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
               </Grid>
